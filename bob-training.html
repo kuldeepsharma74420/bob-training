@@ -1,0 +1,1895 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Module 1 - Modernize: RPG to Spring Boot</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ibm-blue: #0f62fe;
+  --ibm-dark: #161616;
+  --ibm-gray: #393939;
+  --ibm-light: #f4f4f4;
+  --ibm-white: #ffffff;
+  --ibm-accent: #0043ce;
+  --ibm-teal: #007d79;
+  --ibm-purple: #6929c4;
+  --ibm-green: #198038;
+  --ibm-red: #da1e28;
+  --ibm-yellow: #f1c21b;
+}
+
+body {
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ── Slide container ── */
+#deck {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  background: var(--ibm-white);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.slide.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* ── Slide types ── */
+.slide-cover {
+  background: linear-gradient(135deg, #0f62fe 0%, #0043ce 50%, #001d6c 100%);
+  color: white;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px;
+}
+
+.slide-agenda {
+  background: var(--ibm-light);
+}
+
+.slide-topic {
+  background: var(--ibm-white);
+}
+
+.slide-dark {
+  background: var(--ibm-dark);
+  color: var(--ibm-white);
+}
+
+.slide-hands-on {
+  background: linear-gradient(135deg, #007d79 0%, #005d5d 100%);
+  color: white;
+}
+
+/* ── Cover slide ── */
+.cover-eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+.cover-title {
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.cover-title span { color: var(--ibm-yellow); }
+.cover-subtitle {
+  font-size: clamp(16px, 2vw, 22px);
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+.cover-meta {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cover-meta-item {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ── Slide header bar ── */
+.slide-header {
+  background: var(--ibm-blue);
+  color: white;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.slide-header-dark {
+  background: #262626;
+}
+.slide-header-teal { background: var(--ibm-teal); }
+.slide-header-purple { background: var(--ibm-purple); }
+.slide-header-green { background: var(--ibm-green); }
+
+.slide-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.18);
+  border-radius: 3px;
+  padding: 3px 10px;
+}
+.slide-title {
+  font-size: clamp(18px, 2.5vw, 28px);
+  font-weight: 700;
+}
+.slide-time {
+  font-size: 12px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+/* ── Slide body ── */
+.slide-body {
+  flex: 1;
+  padding: 36px 48px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.slide-body.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.slide-body.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--ibm-light);
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px 22px;
+}
+.card-blue { border-left: 4px solid var(--ibm-blue); }
+.card-teal { border-left: 4px solid var(--ibm-teal); }
+.card-purple { border-left: 4px solid var(--ibm-purple); }
+.card-green { border-left: 4px solid var(--ibm-green); }
+.card-yellow { border-left: 4px solid var(--ibm-yellow); }
+.card-red { border-left: 4px solid var(--ibm-red); }
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ibm-gray);
+  margin-bottom: 10px;
+}
+.card p { font-size: 14px; color: var(--ibm-gray); line-height: 1.6; }
+.card ul { padding-left: 18px; }
+.card li { font-size: 14px; color: var(--ibm-gray); margin-bottom: 5px; line-height: 1.5; }
+
+/* ── Big stat / highlight ── */
+.big-stat {
+  text-align: center;
+  padding: 24px;
+  background: var(--ibm-blue);
+  color: white;
+  border-radius: 4px;
+}
+.big-stat-number { font-size: 52px; font-weight: 700; line-height: 1; }
+.big-stat-label { font-size: 14px; margin-top: 6px; opacity: 0.85; }
+
+/* ── Tables ── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--ibm-blue);
+  color: white;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+td { padding: 9px 14px; border-bottom: 1px solid #e0e0e0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #f4f4f4; }
+
+/* ── Code block ── */
+pre {
+  background: var(--ibm-dark);
+  color: #78a9ff;
+  border-radius: 4px;
+  padding: 16px 18px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+code {
+  background: #e8e8e8;
+  border-radius: 2px;
+  padding: 1px 5px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  font-size: 12px;
+  color: var(--ibm-red);
+}
+
+/* ── Agenda list ── */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 32px 48px;
+}
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.agenda-item:hover {
+  border-color: var(--ibm-blue);
+  box-shadow: 0 2px 8px rgba(15,98,254,0.15);
+}
+.agenda-num {
+  background: var(--ibm-blue);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.agenda-text { flex: 1; }
+.agenda-text .at-title { font-size: 13px; font-weight: 600; color: var(--ibm-dark); }
+.agenda-text .at-time { font-size: 11px; color: #6f6f6f; margin-top: 2px; }
+.agenda-badge {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+}
+.badge-hands { background: #defbe6; color: var(--ibm-green); }
+.badge-demo { background: #f6f2ff; color: var(--ibm-purple); }
+
+/* ── Step list ── */
+.steps { list-style: none; padding: 0; }
+.steps li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 14px;
+  color: var(--ibm-gray);
+}
+.steps li:last-child { border-bottom: none; }
+.step-num {
+  background: var(--ibm-blue);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Tag pills ── */
+.pill {
+  display: inline-block;
+  border-radius: 3px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 2px;
+}
+.pill-blue { background: #d0e2ff; color: #0043ce; }
+.pill-green { background: #defbe6; color: #198038; }
+.pill-purple { background: #f6f2ff; color: #6929c4; }
+.pill-teal { background: #d9fbfb; color: #005d5d; }
+.pill-yellow { background: #fdf6dd; color: #8a6914; }
+
+/* ── Callout ── */
+.callout {
+  border-radius: 4px;
+  padding: 14px 18px;
+  font-size: 13px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.callout-info { background: #edf5ff; border-left: 4px solid var(--ibm-blue); color: #0043ce; }
+.callout-tip { background: #defbe6; border-left: 4px solid var(--ibm-green); color: #198038; }
+.callout-warn { background: #fff8e1; border-left: 4px solid var(--ibm-yellow); color: #8a6914; }
+.callout-icon { font-size: 16px; flex-shrink: 0; }
+
+/* ── Slide footer ── */
+.slide-footer {
+  background: #f4f4f4;
+  border-top: 1px solid #e0e0e0;
+  padding: 8px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #6f6f6f;
+  flex-shrink: 0;
+}
+.slide-footer-dark {
+  background: #262626;
+  border-top: 1px solid #393939;
+  color: #8d8d8d;
+}
+
+/* ── Agenda shortcut button ── */
+#btn-agenda {
+  position: fixed;
+  top: 18px;
+  right: 160px;
+  background: rgba(15,98,254,0.85);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+#btn-agenda:hover { background: #0043ce; }
+
+
+#nav {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+#nav button {
+  background: var(--ibm-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#nav button:hover { background: var(--ibm-accent); }
+#nav button:disabled { background: #8d8d8d; cursor: default; }
+
+#slide-counter {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.5);
+  padding: 4px 14px;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+/* ── Section divider slide ── */
+.slide-section-divider {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.divider-number {
+  font-size: 96px;
+  font-weight: 700;
+  opacity: 0.12;
+  line-height: 1;
+  margin-bottom: -20px;
+  color: white;
+}
+.divider-title {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+.divider-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.75);
+  max-width: 560px;
+}
+.divider-time {
+  margin-top: 24px;
+  background: rgba(255,255,255,0.15);
+  display: inline-block;
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+}
+
+/* full-width helper */
+.full { grid-column: 1 / -1; }
+
+/* section label */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ibm-blue);
+  margin-bottom: 6px;
+}
+h2.content-heading {
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  color: var(--ibm-dark);
+  margin-bottom: 14px;
+}
+
+/* mode cards */
+.mode-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+}
+.mode-icon { font-size: 32px; margin-bottom: 10px; }
+.mode-name { font-size: 16px; font-weight: 700; color: var(--ibm-dark); margin-bottom: 6px; }
+.mode-desc { font-size: 12px; color: #6f6f6f; line-height: 1.5; }
+.mode-badge {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 3px;
+}
+
+/* timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 16px; }
+.tl-line { display: flex; flex-direction: column; align-items: center; }
+.tl-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ibm-blue);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.tl-connector { flex: 1; width: 2px; background: #d0e2ff; margin: 2px 0; }
+.tl-content { padding-bottom: 16px; }
+.tl-content strong { font-size: 13px; color: var(--ibm-dark); display: block; }
+.tl-content span { font-size: 12px; color: #6f6f6f; }
+
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 1 — COVER
+════════════════════════════════════════════════════ -->
+<div class="slide slide-cover active" id="s1">
+  <div class="cover-eyebrow">Capgemini Internal Training</div>
+  <div class="cover-title">IBM <span>BOB</span><br>Training</div>
+  <div class="cover-subtitle">AI-Powered Development with IBM BOB</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">⏱ ~3 hrs</div>
+    <div class="cover-meta-item">📋 12 Topics</div>
+    <div class="cover-meta-item">🛠 Hands-on Labs</div>
+    <div class="cover-meta-item">👥 Team Training</div>
+  </div>
+</div>
+
+<!-- AGENDA SLIDE -->
+<div class="slide slide-agenda" id="s2">
+  <div class="slide-header">
+    <div>
+      <div class="slide-tag">Overview</div>
+      <div class="slide-title" style="margin-top:4px">Module 1 — Agenda</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="agenda-grid" style="grid-template-columns:1fr;">
+    <div class="agenda-item" onclick="goToSlide('s28')" style="cursor:pointer">
+      <div class="agenda-num">1</div>
+      <div class="agenda-text">
+        <div class="at-title">Modernize: RPG → Spring Boot</div>
+        <div class="at-time">Clone · Document · Modernize · Dockerise · Deploy</div>
+      </div>
+      <span class="agenda-badge badge-hands">Hands-on</span>
+    </div>
+    <div class="agenda-item" onclick="goToSlide('s_mod2')" style="cursor:pointer">
+      <div class="agenda-num">2</div>
+      <div class="agenda-text">
+        <div class="at-title">IBM BOB Subscriptions &amp; Pricing</div>
+        <div class="at-time">Free Trial · Pro · Pro+ · Ultra · Premium Packages</div>
+      </div>
+    </div>
+    <div class="agenda-item" onclick="goToSlide('s_m3_div')" style="cursor:pointer">
+      <div class="agenda-num">3</div>
+      <div class="agenda-text">
+        <div class="at-title">More Functionality</div>
+        <div class="at-time">.bobignore · Keyboard Shortcuts · Subagents · Bobalytics · Skills</div>
+      </div>
+    </div>
+    <div class="agenda-item" onclick="goToSlide('s_m4_div')" style="cursor:pointer">
+      <div class="agenda-num">4</div>
+      <div class="agenda-text">
+        <div class="at-title">Setup MCP Server</div>
+        <div class="at-time">GitHub MCP · Config file · Steps 1–6</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Agenda</span></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 28 — SECTION DIVIDER: Module 1
+════════════════════════════════════════════════════ -->
+<div class="slide slide-section-divider" id="s28"
+     style="background: linear-gradient(135deg, #9f1853 0%, #0f62fe 100%);">
+  <div class="divider-number">1</div>
+  <div class="divider-title">Modernize: RPG → Spring Boot</div>
+  <div class="divider-sub">Clone, document, modernize and run a legacy RPG IV app as a React + Spring Boot web application</div>
+  <div class="divider-time">⏱ Hands-on</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29a — Module 1: SETUP & /INIT
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · 1 of 5</div>
+      <div class="slide-title" style="margin-top:4px">Step 1 — Clone the App &amp; Initialise with /init</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Clone the Repository</div>
+      <ol class="steps">
+        <li>
+          <span class="step-num" style="background:#9f1853">1</span>
+          <div>Open BOB IDE and click <strong>File → Open Folder</strong>, or use the terminal to clone:</div>
+        </li>
+      </ol>
+      <pre style="margin-top:8px;margin-bottom:14px">git clone https://github.com/kuldeepsharma74420/invreport.git</pre>
+      <ol class="steps">
+        <li>
+          <span class="step-num" style="background:#9f1853">2</span>
+          <div>Open the cloned <code>invreport</code> folder in BOB IDE — trust the authors when prompted</div>
+        </li>
+        <li>
+          <span class="step-num" style="background:#9f1853">3</span>
+          <div>Open the BOB chat (<code>Ctrl+Alt+B</code> / <code>Opt+Cmd+B</code>)</div>
+        </li>
+        <li>
+          <span class="step-num" style="background:#9f1853">4</span>
+          <div>In the chat input, run the <code>/init</code> command and approve any prompts</div>
+        </li>
+      </ol>
+    </div>
+    <div>
+      <div class="section-label">What is /init?</div>
+      <div class="card card-blue" style="margin-bottom:12px">
+        <div class="card-title">🚀 /init — Project Context Initialiser</div>
+        <p>The <code>/init</code> command tells BOB to <strong>read and understand your entire project</strong>. It scans all files, infers the tech stack, identifies entry points, and generates:</p>
+        <ul style="padding-left:16px;margin-top:8px;font-size:13px;line-height:1.8">
+          <li>An <code>AGENTS.md</code> file in the project root — describes the architecture and key patterns</li>
+          <li>Mode-specific <code>AGENTS.md</code> files in <code>.bob/</code> — guides BOB's behaviour per mode</li>
+        </ul>
+      </div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <span>Always run <code>/init</code> first on any new project. It gives BOB the context it needs to generate accurate, project-aware responses in all subsequent prompts.</span>
+      </div>
+      <div class="callout callout-info" style="margin-top:10px">
+        <span class="callout-icon">ℹ️</span>
+        <span>After <code>/init</code>, review the generated <code>AGENTS.md</code> to see what BOB understood about your RPG codebase before proceeding.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Clone &amp; /init</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29b — Module 1: BUSINESS & TECHNICAL DOCS
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29b">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · 2 of 4</div>
+      <div class="slide-title" style="margin-top:4px">Steps 2 &amp; 3 — Generate Business &amp; Technical Documents</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Step 2 — Generate Business Document (HTML)</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span><strong>Why:</strong> Creates a stakeholder-ready HTML document explaining what the legacy RPG program does in business terms — no technical jargon.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.8">Analyze this RPG IV application and generate a business documentation file called <code>docs/business-document.html</code>.<br><br>
+Include:<br>
+1. Executive summary — what this application does in plain English<br>
+2. Business rules and logic (e.g. inventory thresholds, status classification)<br>
+3. Data inputs and outputs — what data goes in and what reports come out<br>
+4. Key business processes supported by the application<br>
+5. Current limitations of the legacy system<br><br>
+Format as a clean, styled HTML page suitable for sharing with business stakeholders. Do not include code — business language only.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Step 3 — Generate Technical Document (HTML)</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span><strong>Why:</strong> Creates a developer-facing HTML document covering the technical architecture, data structures, and modernization requirements.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.8">Analyze this RPG IV application and generate a technical documentation file called <code>docs/technical-document.html</code>.<br><br>
+Include:<br>
+1. Tech stack and language — RPG IV on IBM i (AS/400)<br>
+2. Program structure — all procedures and their responsibilities<br>
+3. Data structures — all dcl-ds and dcl-s fields with types and descriptions<br>
+4. File I/O and data sources — fixed-width files, field positions<br>
+5. Business logic mapping — rules to preserve during modernization<br>
+6. Modernization requirements — what needs to change for React + Spring Boot<br><br>
+Format as a clean, styled HTML page for the development team.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Business &amp; Technical Docs</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29c — Module 1: MODERNIZE THE APPLICATION
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29c">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · 3 of 4</div>
+      <div class="slide-title" style="margin-top:4px">Step 4 — Modernize RPG → React + Spring Boot</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Modernization Prompt</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span><strong>Switch to Agent mode</strong> before running this prompt — BOB needs full read, write, and execute permissions to generate the complete project.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.8">Modernize this RPG IV inventory report application into a full-stack web application using React (frontend) and Spring Boot (backend).<br><br>
+Tech stack:<br>
+- Backend: Java 17, Spring Boot 3.x, Maven, REST API<br>
+- Frontend: React 18, JavaScript, Axios for API calls<br>
+- No external CSS frameworks — use plain CSS<br><br>
+Preserve all business rules exactly:<br>
+- Low stock flag: quantity &lt;= reorderPoint (do not change to &lt;)<br>
+- Status: "A" = Active, "D" = Discontinued, else "Unknown"<br>
+- Unit price: stored as integer with 2 implied decimal places (÷100)<br><br>
+Generate the complete project structure with:<br>
+1. Spring Boot REST API serving inventory data<br>
+2. React frontend with KPI cards, filter buttons, sortable table<br>
+3. Amber row for low stock, red for out of stock<br>
+4. pom.xml and package.json with all required dependencies</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">What BOB Will Generate</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Layer</th><th>Files Created</th></tr>
+        <tr><td>Backend</td><td><code>pom.xml</code>, <code>InventoryRecord.java</code>, <code>InventoryService.java</code>, <code>InventoryController.java</code></td></tr>
+        <tr><td>Frontend</td><td><code>package.json</code>, <code>App.js</code>, <code>InventoryTable.jsx</code>, <code>KpiCards.jsx</code></td></tr>
+        <tr><td>Config</td><td><code>application.properties</code>, <code>CORS config</code></td></tr>
+      </table>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <span>Review the generated <code>AGENTS.md</code> and <code>docs/technical-document.html</code> before running this prompt — BOB will use that context to produce more accurate code.</span>
+      </div>
+      <div class="callout callout-tip" style="margin-top:10px">
+        <span class="callout-icon">✅</span>
+        <span>After generation, verify the business rules match the originals — especially the <code>&lt;=</code> low stock check and the unit price decimal conversion.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Modernize RPG → React + Spring Boot</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29d — Module 1: RUN THE APPLICATION
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29d">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · 4 of 4</div>
+      <div class="slide-title" style="margin-top:4px">Step 5 — Run the Modernised Application</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Ask BOB to Run It For You</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span>Make sure you are in <strong>Agent mode</strong> with <strong>Execute</strong> permission enabled — BOB needs to run terminal commands to start both services.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4;margin-bottom:12px">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.8">Please run the modernised application for me. Start both the Spring Boot backend and the React frontend.<br><br>
+1. Build and start the Spring Boot backend so the REST API is available at http://localhost:8080<br>
+2. Install React dependencies and start the frontend at http://localhost:3000<br>
+3. Confirm the API is responding and the frontend can fetch data<br>
+4. Tell me the exact URLs to open in my browser</p>
+      </div>
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <span>BOB will start both processes — but since they run forever, it will open them in background terminals. Check the terminal panel in BOB for output.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">What You Should See</div>
+      <table style="margin-bottom:14px">
+        <tr><th>URL</th><th>What Opens</th></tr>
+        <tr><td><code>http://localhost:8080/api/inventory</code></td><td>Raw JSON inventory data from Spring Boot</td></tr>
+        <tr><td><code>http://localhost:3000</code></td><td>React frontend with KPI cards, filters, and table</td></tr>
+        <tr><td><code>http://localhost:8080/api/summary</code></td><td>Summary statistics as JSON</td></tr>
+      </table>
+      <div class="section-label">Module 1 — Full Journey Summary</div>
+      <ul class="steps">
+        <li><span class="step-num" style="background:#9f1853">✅</span><div><strong>Step 1</strong> — Cloned repo + ran <code>/init</code> to build project context</div></li>
+        <li><span class="step-num" style="background:#9f1853">✅</span><div><strong>Step 2</strong> — Generated business documentation in HTML</div></li>
+        <li><span class="step-num" style="background:#9f1853">✅</span><div><strong>Step 3</strong> — Generated technical documentation in HTML</div></li>
+        <li><span class="step-num" style="background:#9f1853">✅</span><div><strong>Step 4</strong> — Modernized RPG IV → React + Spring Boot</div></li>
+        <li><span class="step-num" style="background:#9f1853">✅</span><div><strong>Step 5</strong> — BOB ran both services, app live in browser</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Run the Application</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29e — Module 1: CONTAINERISE WITH DOCKER
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29e">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · Bonus</div>
+      <div class="slide-title" style="margin-top:4px">Step 6 — Containerise with Docker</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Docker Containerisation Prompt</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span>Use <strong>Agent mode</strong> with <strong>Execute</strong> permission enabled — BOB needs to run terminal commands to check tools, build images and start containers.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.9">I want to containerize my application using Docker only.<br><br>
+Tasks:<br>
+1. Check whether all prerequisites are installed:<br>
+&nbsp;&nbsp;&nbsp;- Docker<br>
+&nbsp;&nbsp;&nbsp;- Docker Compose (if required)<br>
+&nbsp;&nbsp;&nbsp;- Git<br>
+&nbsp;&nbsp;&nbsp;- Application runtime (Java/Python/Node.js, whichever is needed)<br>
+2. Verify versions of installed tools.<br>
+3. If anything is missing, provide installation commands.<br>
+4. Create a production-ready Dockerfile for my application.<br>
+5. Build the Docker image with the correct command.<br>
+6. Run the container with the required port mapping.<br>
+7. Verify the container is running.<br>
+8. Show commands to check logs, inspect the container, stop it, and remove it.<br>
+9. Explain each command briefly.<br><br>
+Application Details:<br>
+- Application Type: Spring Boot<br>
+- Source Code Path: &lt;path&gt;<br>
+- Port: &lt;port&gt;</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">What BOB Will Do</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Task</th><th>What Happens</th></tr>
+        <tr><td>1–3 · Prerequisites</td><td>Checks Docker, Git, Java versions — installs if missing</td></tr>
+        <tr><td>4 · Dockerfile</td><td>Creates a production-ready multi-stage Dockerfile</td></tr>
+        <tr><td>5 · Build image</td><td>Runs <code>docker build -t &lt;app&gt; .</code></td></tr>
+        <tr><td>6 · Run container</td><td>Runs <code>docker run -p &lt;port&gt;:&lt;port&gt; &lt;app&gt;</code></td></tr>
+        <tr><td>7 · Verify</td><td>Runs <code>docker ps</code> to confirm it's running</td></tr>
+        <tr><td>8–9 · Manage</td><td>Provides logs, inspect, stop, and remove commands</td></tr>
+      </table>
+      <div class="section-label">Useful Docker Commands</div>
+      <pre style="font-size:11px">docker ps                  # list running containers
+docker logs &lt;id&gt;           # view container logs
+docker inspect &lt;id&gt;        # full container details
+docker stop &lt;id&gt;           # stop the container
+docker rm &lt;id&gt;             # remove the container
+docker rmi &lt;image&gt;         # remove the image</pre>
+      <div class="callout callout-tip" style="margin-top:10px">
+        <span class="callout-icon">✅</span>
+        <span>Replace <code>&lt;path&gt;</code> with your actual project path and <code>&lt;port&gt;</code> with <code>8080</code> for Spring Boot or <code>3000</code> for React before sending the prompt.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — Containerise with Docker</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 29f — Module 1: BOBSHELL DEPLOYMENT
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s29f">
+  <div class="slide-header" style="background:#9f1853">
+    <div>
+      <div class="slide-tag">Module 1 · Bonus 2</div>
+      <div class="slide-title" style="margin-top:4px">Step 7 — Deploy with BOB Shell</div>
+    </div>
+    <div class="slide-time">⏱ Hands-on</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">BOB Shell Deployment Prompt</div>
+      <div class="callout callout-info" style="margin-bottom:10px;font-size:12px">
+        <span class="callout-icon">💡</span>
+        <span>Use <strong>Agent mode</strong> with <strong>Execute</strong> permission — BOB Shell runs terminal commands on your behalf to install, configure, and deploy.</span>
+      </div>
+      <div class="card" style="border-left:4px solid #9f1853;background:#f4f4f4">
+        <p style="font-family:monospace;font-size:12px;color:#161616;line-height:1.9">I want to use Bobshell for my application deployment.<br><br>
+Tasks:<br>
+1. Explain what Bobshell is and its benefits.<br>
+2. Verify whether Bobshell is installed on the server.<br>
+3. If not installed, provide installation steps.<br>
+4. Configure Bobshell for my application.<br>
+5. Explain the folder structure and configuration files required.<br>
+6. Show how to deploy an application using Bobshell.<br>
+7. Explain how to check deployment status and logs.<br>
+8. Show how to restart, stop, and troubleshoot applications using Bobshell.<br>
+9. Provide best practices for production environments.<br>
+10. Explain each step with examples and commands.<br><br>
+Environment Details:<br>
+- OS: &lt;Linux Distribution&gt;<br>
+- Application Type: Spring Boot<br>
+- Deployment Server: &lt;Server Details&gt;</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">What BOB Shell Does</div>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">🖥️ What is BOB Shell?</div>
+        <p>BOB Shell is IBM BOB's <strong>command-line interface</strong> that brings AI capabilities directly to your terminal. It lets you deploy, manage, and troubleshoot applications using natural language commands from the shell — no IDE required.</p>
+      </div>
+      <div class="section-label">10-Task Breakdown</div>
+      <table>
+        <tr><th>#</th><th>Task</th></tr>
+        <tr><td>1</td><td>Explain BOB Shell + benefits</td></tr>
+        <tr><td>2–3</td><td>Check/install BOB Shell on server</td></tr>
+        <tr><td>4–5</td><td>Configure + explain folder structure</td></tr>
+        <tr><td>6</td><td>Deploy the application</td></tr>
+        <tr><td>7</td><td>Check deployment status &amp; logs</td></tr>
+        <tr><td>8</td><td>Restart, stop &amp; troubleshoot</td></tr>
+        <tr><td>9</td><td>Production best practices</td></tr>
+        <tr><td>10</td><td>Full examples with commands</td></tr>
+      </table>
+      <div class="callout callout-tip" style="margin-top:10px">
+        <span class="callout-icon">✅</span>
+        <span>Replace <code>&lt;Linux Distribution&gt;</code> (e.g. Ubuntu 22.04, RHEL 9) and <code>&lt;Server Details&gt;</code> (e.g. IP, hostname) before sending the prompt.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 1 — BOB Shell Deployment</span></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 17 — SECTION DIVIDER: MORE FUNCTIONALITY
+════════════════════════════════════════════════════ -->
+<div class="slide slide-section-divider" id="s_m3_div"
+     style="background: linear-gradient(135deg, #6929c4 0%, #0043ce 100%);">
+  <div class="divider-number.*3</div>
+  <div class="divider-title">More Functionality</div>
+  <div class="divider-sub">.bobignore · Pattern Syntax · Tool Enforcement · Limitations</div>
+  <div class="divider-time">⏱ 20 minutes</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18a — WHAT IS .BOBIGNORE & PATTERN SYNTAX
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_1">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 1 of 7</div>
+      <div class="slide-title" style="margin-top:4px">Ignoring Files — .bobignore</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">What is .bobignore?</div>
+      <p style="font-size:13px;color:#393939;line-height:1.7;margin-bottom:14px">
+        Control which files BOB can access by creating a <code>.bobignore</code> file in your project root. It works just like <code>.gitignore</code> — list patterns to define BOB's operational scope.
+      </p>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">🎯 Purpose</div>
+        <ul style="font-size:13px;padding-left:16px;line-height:1.8">
+          <li>Protect sensitive information</li>
+          <li>Prevent accidental changes to build artifacts</li>
+          <li>Exclude large assets from BOB's context</li>
+          <li>Define BOB's operational scope in your workspace</li>
+        </ul>
+      </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>BOB <strong>actively monitors</strong> the file — any changes reload automatically. The <code>.bobignore</code> file itself is always implicitly ignored so BOB cannot change its own access rules.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Pattern Syntax (same as .gitignore)</div>
+      <table>
+        <tr><th>Pattern</th><th>Description</th></tr>
+        <tr><td><code>node_modules/</code></td><td>Ignores entire node_modules directory</td></tr>
+        <tr><td><code>*.log</code></td><td>Ignores all files ending in .log</td></tr>
+        <tr><td><code>config/secrets.json</code></td><td>Ignores a specific file</td></tr>
+        <tr><td><code>!important.log</code></td><td>Exception — BOB will NOT ignore this file even if <code>*.log</code> exists</td></tr>
+        <tr><td><code>build/</code></td><td>Ignores the build directory</td></tr>
+        <tr><td><code>docs/**/*.md</code></td><td>Ignores all Markdown files in docs/ and subdirectories</td></tr>
+      </table>
+      <div class="callout callout-tip" style="margin-top:12px">
+        <span class="callout-icon">✅</span>
+        <span>Create the file at your workspace root: <code>.bobignore</code> — no additional configuration needed.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — .bobignore Introduction</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18b — HOW TOOLS INTERACT WITH .BOBIGNORE
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_2">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 2 of 7</div>
+      <div class="slide-title" style="margin-top:4px">How BOB Tools Interact with .bobignore</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">✅ Strict Enforcement (Reads &amp; Writes)</div>
+      <p style="font-size:13px;color:#393939;line-height:1.6;margin-bottom:10px">These tools directly check <code>.bobignore</code> before any file operation. If a file is ignored, the operation is <strong>blocked</strong>:</p>
+      <table style="margin-bottom:16px">
+        <tr><th>Tool</th><th>Behaviour</th></tr>
+        <tr><td><code>read_file</code></td><td>Will not read ignored files</td></tr>
+        <tr><td><code>write_file</code></td><td>Will not write to or create ignored files</td></tr>
+        <tr><td><code>apply_diff</code></td><td>Will not apply diffs to ignored files</td></tr>
+        <tr><td><code>GetSymbolsOverview</code></td><td>Will not parse ignored files for code symbols</td></tr>
+      </table>
+      <div class="section-label">🔍 File Discovery &amp; Listing</div>
+      <ul class="steps">
+        <li><span class="step-num" style="background:#6929c4">1</span><div><code>list_files</code> — ignored files are omitted or marked with 🔒</div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div>Workspace environment details (open tabs, project structure) are filtered to exclude ignored items</div></li>
+      </ul>
+    </div>
+    <div>
+      <div class="section-label">⚠️ File Editing Tools (Potential Write Bypass)</div>
+      <div class="callout callout-warn" style="margin-bottom:14px">
+        <span class="callout-icon">⚠️</span>
+        <span><code>insert_content</code> and <code>search_and_replace</code> — the final <strong>write operation may bypass</strong> <code>.bobignore</code> rules. Initial reads are blocked, but the save action does not have an explicit check.</span>
+      </div>
+      <div class="section-label">🖥️ Command Execution</div>
+      <p style="font-size:13px;color:#393939;line-height:1.6;margin-bottom:10px">The <code>execute_command</code> tool checks if a command (from a predefined list like <code>cat</code> or <code>grep</code>) targets an ignored file — if so, the command is blocked.</p>
+      <div class="section-label">🔔 User Notifications</div>
+      <ul class="steps">
+        <li><span class="step-num" style="background:#6929c4">1</span><div><strong>� Visual cue</strong> — ignored files marked with a lock symbol in file listings</div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div><strong>Error message</strong> — "Access to [file_path] is blocked by the .bobignore file settings"</div></li>
+        <li><span class="step-num" style="background:#6929c4">3</span><div><strong>Chat notification</strong> — visible alert when an action is blocked</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Tool Enforcement</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18c — KEY LIMITATIONS & SCOPE
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_3">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 3 of 7</div>
+      <div class="slide-title" style="margin-top:4px">Key Limitations &amp; Scope</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Known Limitations</div>
+      <div class="card card-red" style="margin-bottom:10px">
+        <div class="card-title">⚠️ Workspace-Centric Only</div>
+        <p>Rules apply only to files within the current BOB workspace root. Files outside this scope are not affected.</p>
+      </div>
+      <div class="card card-yellow" style="margin-bottom:10px">
+        <div class="card-title">⚠️ execute_command Specificity</div>
+        <p>Protection is limited to a predefined list of file-reading commands (e.g. <code>cat</code>, <code>grep</code>). Custom scripts or uncommon utilities may not be caught.</p>
+      </div>
+      <div class="card card-red" style="margin-bottom:10px">
+        <div class="card-title">⚠️ insert_content &amp; search_and_replace</div>
+        <p>These tools may write to ignored files due to current limitations in their save mechanism — the write step does not check <code>.bobignore</code>.</p>
+      </div>
+      <div class="card card-yellow">
+        <div class="card-title">⚠️ Not a Full Sandbox</div>
+        <p><code>.bobignore</code> is powerful for controlling file access via BOB's tools, but it does not create a system-level sandbox.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Quick Reference Summary</div>
+      <table style="margin-bottom:16px">
+        <tr><th>Aspect</th><th>Detail</th></tr>
+        <tr><td>File location</td><td>Workspace root — <code>.bobignore</code></td></tr>
+        <tr><td>Syntax</td><td>Identical to <code>.gitignore</code></td></tr>
+        <tr><td>Auto-reload</td><td>✅ Yes — changes take effect immediately</td></tr>
+        <tr><td>Self-protection</td><td>✅ BOB cannot edit its own ignore rules</td></tr>
+        <tr><td>Strict tools</td><td><code>read_file</code>, <code>write_file</code>, <code>apply_diff</code></td></tr>
+        <tr><td>Bypass risk</td><td><code>insert_content</code>, <code>search_and_replace</code></td></tr>
+        <tr><td>Visual indicator</td><td>🔒 lock symbol in file listings</td></tr>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <span>Best practice: always add <code>*.env</code>, <code>secrets/</code>, <code>credentials*</code>, and <code>node_modules/</code> to your <code>.bobignore</code> from day one.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Limitations &amp; Scope</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18d — KEYBOARD SHORTCUTS REFERENCE
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_4">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 4 of 7</div>
+      <div class="slide-title" style="margin-top:4px">Keyboard Shortcuts</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Available Keyboard Commands</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Command</th><th>Mac</th><th>Windows / Linux</th></tr>
+        <tr><td>Inline Chat (edit in editor)</td><td><code>Cmd+K</code></td><td><code>Ctrl+K</code></td></tr>
+        <tr><td>Send code to chat</td><td><code>Cmd+L</code></td><td><code>Ctrl+L</code></td></tr>
+        <tr><td>Literate coding mode</td><td><code>Cmd+I</code></td><td><code>Ctrl+I</code></td></tr>
+        <tr><td>Open BOB chat panel</td><td><code>Opt+Cmd+B</code></td><td><code>Ctrl+Alt+B</code></td></tr>
+        <tr><td>Cycle modes</td><td><code>Cmd+.</code></td><td><code>Ctrl+.</code></td></tr>
+        <tr><td>Bob.acceptInput</td><td colspan="2">No default — configurable (see next slide)</td></tr>
+        <tr><td>Focus BOB input box</td><td colspan="2">No default — configurable</td></tr>
+      </table>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>To view or modify all shortcuts: <strong>BOB Settings → General → Keyboard Shortcuts</strong></span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Key Benefits</div>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">⌨️ Keyboard-Driven Interface</div>
+        <p>Submit text or select primary suggestions without touching the mouse</p>
+      </div>
+      <div class="card card-purple" style="margin-bottom:10px">
+        <div class="card-title">♿ Improved Accessibility</div>
+        <p>Essential for users with mobility limitations or repetitive strain — works with screen readers and voice control</p>
+      </div>
+      <div class="card card-teal" style="margin-bottom:10px">
+        <div class="card-title">🎯 Vim / Neovim Compatibility</div>
+        <p>Seamless transition for developers from keyboard-centric environments</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-title">⚡ Workflow Efficiency</div>
+        <p>Reduces context switching between keyboard and mouse during development</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Keyboard Shortcuts</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18f — SUBAGENTS: WHAT THEY ARE & HOW THEY WORK
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_6">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 6 of 7</div>
+      <div class="slide-title" style="margin-top:4px">Subagents — What They Are &amp; How They Work</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">What is a Subagent?</div>
+      <p style="font-size:13px;color:#393939;line-height:1.7;margin-bottom:14px">
+        A subagent is an <strong>independent agent</strong> BOB can spawn to handle a focused, self-contained task. It runs in its own isolated context window, executes its work, and returns a summary back to the main conversation — without polluting it.
+      </p>
+      <div class="section-label">How Subagents Work</div>
+      <ol class="steps">
+        <li><span class="step-num" style="background:#6929c4">1</span><div>A new independent agent is created with its own context window</div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div>BOB passes it a description of the focused task</div></li>
+        <li><span class="step-num" style="background:#6929c4">3</span><div>You are prompted to <strong>approve the spawn</strong> before it starts</div></li>
+        <li><span class="step-num" style="background:#6929c4">4</span><div>The subagent executes the task using its available tools</div></li>
+        <li><span class="step-num" style="background:#6929c4">5</span><div>It returns a <strong>summary of findings</strong> back to BOB</div></li>
+        <li><span class="step-num" style="background:#6929c4">6</span><div>BOB uses that summary to continue the main conversation</div></li>
+      </ol>
+      <div class="callout callout-info" style="margin-top:12px">
+        <span class="callout-icon">ℹ️</span>
+        <span>The subagent does <strong>not share state, files, or tool results</strong> with BOB unless BOB explicitly passes them in the description.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Subagent Types</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Type</th><th>Description</th><th>Best For</th></tr>
+        <tr><td><code>explore</code></td><td>Read-only, lighter model</td><td>Searching code, finding files, understanding structure</td></tr>
+        <tr><td><code>general</code></td><td>Full tool access, default model</td><td>Any self-contained task — reads, writes, commands</td></tr>
+      </table>
+      <div class="section-label">When BOB Uses Subagents</div>
+      <p style="font-size:13px;color:#393939;line-height:1.6;margin-bottom:10px">BOB uses subagents <strong>sparingly</strong>. All of these must be true:</p>
+      <ul class="steps">
+        <li><span class="step-num" style="background:#6929c4">✓</span><div>The task is <strong>clearly self-contained</strong> and only a summary is needed back</div></li>
+        <li><span class="step-num" style="background:#6929c4">✓</span><div>It would add <strong>significant irrelevant content</strong> to the main context</div></li>
+        <li><span class="step-num" style="background:#6929c4">✓</span><div>Cannot be done with <strong>one or two direct tool calls</strong></div></li>
+      </ul>
+      <div class="callout callout-warn" style="margin-top:10px">
+        <span class="callout-icon">⚠️</span>
+        <span>BOB does <strong>not</strong> use subagents for simple file reads, quick searches, single-tool operations, or when context is already available.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Subagents</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18g — SUBAGENTS VS SUBTASKS & CONTEXT
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_7">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 7 of 7</div>
+      <div class="slide-title" style="margin-top:4px">Subagents vs Subtasks &amp; Context Rules</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Subagents vs Subtasks</div>
+      <table style="margin-bottom:14px">
+        <tr><th></th><th>Subagent</th><th>Subtask</th></tr>
+        <tr><td><strong>Visibility</strong></td><td>Runs silently in background</td><td>Appears in UI with breadcrumb &amp; conversation</td></tr>
+        <tr><td><strong>Interaction</strong></td><td>Not interactive — returns only a summary</td><td>Fully interactive — follow progress &amp; continue</td></tr>
+        <tr><td><strong>Purpose</strong></td><td>Gather info without polluting main context</td><td>Complex work needing tracking &amp; dedicated thread</td></tr>
+        <tr><td><strong>Output</strong></td><td>Summary returned to BOB</td><td>Independent conversation thread</td></tr>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <span>Use <strong>subagents</strong> for background information-gathering. Use <strong>subtasks</strong> for complex work that benefits from visibility and a dedicated conversation.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Context &amp; Conversation History</div>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">📋 Default — No Parent History</div>
+        <p>By default a subagent does <strong>not</strong> see the parent conversation. This keeps its context lean and focused on the task.</p>
+      </div>
+      <div class="card card-purple" style="margin-bottom:14px">
+        <div class="card-title">🔀 fork_context: true</div>
+        <p>When a subagent needs to understand prior decisions or constraints, BOB sets <code>fork_context: true</code> to pass the conversation history into the subagent.</p>
+      </div>
+      <div class="section-label">Mode Restrictions</div>
+      <p style="font-size:13px;color:#393939;line-height:1.6">The <strong>active mode</strong> controls which subagent types BOB is permitted to spawn. Some modes allow all types; others restrict or disallow spawning entirely.</p>
+      <div class="callout callout-info" style="margin-top:10px">
+        <span class="callout-icon">ℹ️</span>
+        <span>If a subagent spawn is not permitted by the active mode, <strong>BOB completes the work directly</strong> without spawning.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Subagents vs Subtasks</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18h — BOBALYTICS: OVERVIEW & KPIs
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_8">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 8 of 9</div>
+      <div class="slide-title" style="margin-top:4px">Bobalytics — Overview &amp; KPIs</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">What is Bobalytics?</div>
+      <p style="font-size:13px;color:#393939;line-height:1.7;margin-bottom:12px">
+        Bobalytics provides <strong>analytics and insights</strong> into how IBM BOB contributes to your software development process — tracking codebase impact, Bobcoin spending, and team adoption.
+      </p>
+      <div class="callout callout-warn" style="margin-bottom:14px">
+        <span class="callout-icon">⚠️</span>
+        <span>Bobalytics is available <strong>exclusively for Enterprise plan users</strong>. Access it via <strong>bob.ibm.com → Admin → Bobalytics</strong>.</span>
+      </div>
+      <div class="section-label">Analytics Views</div>
+      <table>
+        <tr><th>View</th><th>Who Can See It</th><th>Shows</th></tr>
+        <tr><td>🏢 Workspace</td><td>Admins only</td><td>Aggregated data across all teams — org-wide adoption, value, cost</td></tr>
+        <tr><td>👥 Team</td><td>Admins (all charts) + Users (anonymized)</td><td>Analytics for a specific team — user emails shown as User 1, User 2…</td></tr>
+        <tr><td>👤 User</td><td>Every user (own data only)</td><td>Personal analytics — admins cannot view other users' data</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="section-label">Three Key KPIs</div>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">📈 Adoption Rate</div>
+        <p>Avg daily active users ÷ total licensed seats. A user is active when they accept a code completion or complete a chat conversation.</p>
+      </div>
+      <div class="card card-green" style="margin-bottom:10px">
+        <div class="card-title">⚡ Bob Factor</div>
+        <p>Lines of code committed by BOB ÷ total lines committed. Measures BOB's <strong>tangible contribution to shipped code</strong>.</p>
+      </div>
+      <div class="card card-purple">
+        <div class="card-title">💰 Bobcoin Spend</div>
+        <p>Total Bobcoins consumed over the selected period. Track daily spend and compare team-level cost vs. impact.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Bobalytics Overview</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18i — BOBALYTICS: USING KPIs EFFECTIVELY
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_9">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 9 of 9</div>
+      <div class="slide-title" style="margin-top:4px">Bobalytics — Using KPIs Effectively</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Which KPI to Use for Each Goal</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Goal</th><th>KPI to Focus On</th></tr>
+        <tr><td>How many people actively use BOB</td><td>Adoption Rate</td></tr>
+        <tr><td>BOB's contribution to shipped code</td><td>Bob Factor</td></tr>
+        <tr><td>Monitor and control AI tooling costs</td><td>Bobcoin Spend</td></tr>
+        <tr><td>Assess efficiency (value vs. cost)</td><td>Bob Factor + Bobcoin Spend together</td></tr>
+      </table>
+      <div class="section-label">Tips by KPI</div>
+      <div class="callout callout-tip" style="margin-bottom:8px">
+        <span class="callout-icon">📈</span>
+        <span><strong>Low adoption rate?</strong> Check usage levels — identify inactive/occasional users and review their onboarding before end of billing cycle.</span>
+      </div>
+      <div class="callout callout-tip" style="margin-bottom:8px">
+        <span class="callout-icon">⚡</span>
+        <span><strong>High spend + low Bob factor?</strong> BOB may be used heavily for research/explanation rather than code production — review team workflows.</span>
+      </div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">💰</span>
+        <span><strong>Spend spike?</strong> Filter by team and time range in the workspace view to identify the source quickly.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Privacy &amp; Data Visibility</div>
+      <div class="card card-blue" style="margin-bottom:10px">
+        <div class="card-title">🔒 Anonymized Team Data</div>
+        <p>User-identifying info (email addresses) in team-level charts is replaced with <strong>User 1, User 2…</strong> — admins cannot identify individuals.</p>
+      </div>
+      <div class="card card-green" style="margin-bottom:14px">
+        <div class="card-title">👤 User View is Personal Only</div>
+        <p>Admins can only view their own data on the User view page — no access to other users' individual data.</p>
+      </div>
+      <div class="section-label">Reviewing Data Regularly</div>
+      <ul class="steps">
+        <li><span class="step-num" style="background:#6929c4">1</span><div>Check weekly/monthly to spot trends early</div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div>Declining adoption → users may need enablement or workflow adjustments</div></li>
+        <li><span class="step-num" style="background:#6929c4">3</span><div>Rising Bob factor + stable spend → strong signal of increasing value</div></li>
+        <li><span class="step-num" style="background:#6929c4">4</span><div>Use workspace view to create reports for leadership or justify AI tooling investment</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Bobalytics KPIs</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18j — SKILLS: WHAT THEY ARE & WHY USE THEM
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_10">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 10 of 12</div>
+      <div class="slide-title" style="margin-top:4px">Skills — What They Are &amp; Why Use Them</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">What Are Skills?</div>
+      <p style="font-size:13px;color:#393939;line-height:1.7;margin-bottom:14px">
+        Skills are <strong>reusable instruction sets</strong> that teach BOB new workflows and specialised tasks. Think of them as <em>recipes</em> that BOB follows to complete specific types of work in a consistent, repeatable manner.
+      </p>
+      <div class="section-label">How Skills Work</div>
+      <ol class="steps" style="margin-bottom:14px">
+        <li><span class="step-num" style="background:#6929c4">1</span><div>You activate a skill (or BOB auto-activates based on your request)</div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div>BOB receives the skill's instructions + access to supporting files</div></li>
+        <li><span class="step-num" style="background:#6929c4">3</span><div>BOB follows the defined workflow to complete your task</div></li>
+      </ol>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>Skills load <strong>once per conversation</strong>. BOB automatically determines when to activate a skill based on your request and the skill's description.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Why Use Skills?</div>
+      <div class="card card-blue" style="margin-bottom:8px">
+        <div class="card-title">♻️ Reusability</div>
+        <p>Define workflows once and use them across multiple conversations</p>
+      </div>
+      <div class="card card-green" style="margin-bottom:8px">
+        <div class="card-title">🎯 Consistency</div>
+        <p>Ensure BOB follows the same approach every time for specific tasks</p>
+      </div>
+      <div class="card card-purple" style="margin-bottom:8px">
+        <div class="card-title">🧠 Specialisation</div>
+        <p>Create domain-specific expertise for code reviews, testing, documentation, and more</p>
+      </div>
+      <div class="card card-teal" style="margin-bottom:8px">
+        <div class="card-title">👥 Team Collaboration</div>
+        <p>Share standardised workflows across your team through version control</p>
+      </div>
+      <div class="card card-yellow">
+        <div class="card-title">🗂️ Flexibility</div>
+        <p>Include supporting files like checklists, templates, and reference materials</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Skills Overview</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18k — SKILLS: CREATING & STRUCTURE
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_11">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 11 of 12</div>
+      <div class="slide-title" style="margin-top:4px">Skills — Creating &amp; Structure</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Skill Locations</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Location</th><th>Scope</th><th>Use Case</th></tr>
+        <tr><td><code>.bob/skills/</code></td><td>Project-specific</td><td>Workflows unique to this project</td></tr>
+        <tr><td><code>~/.bob/skills/</code></td><td>Global</td><td>Personal or org-wide workflows</td></tr>
+      </table>
+      <p style="font-size:12px;color:#6f6f6f;margin-bottom:14px">If both locations have a skill with the same name, <strong>project-level takes precedence</strong>.</p>
+
+      <div class="section-label">Directory Structure</div>
+      <pre style="font-size:11px">.bob/skills/
+  code-review/
+    SKILL.md          ← required
+    checklist.md
+    severity-guide.md
+    scripts/
+      analyze.sh</pre>
+
+      <div class="section-label" style="margin-top:14px">SKILL.md Format</div>
+      <pre style="font-size:11px">---
+name: code-review
+description: Review code for bugs,
+  security issues, and best practices
+---
+When reviewing code, check for:
+- Security vulnerabilities
+- Performance issues
+- Missing error handling
+- Unused imports and dead code</pre>
+    </div>
+    <div>
+      <div class="section-label">Required Fields in SKILL.md</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Field</th><th>Purpose</th></tr>
+        <tr><td><code>name</code></td><td>Display name shown in the BOB interface</td></tr>
+        <tr><td><code>description</code></td><td>Helps BOB decide when to activate — skills without descriptions are <strong>ignored</strong></td></tr>
+        <tr><td>Instructions</td><td>Everything below <code>---</code> becomes BOB's workflow instructions</td></tr>
+      </table>
+
+      <div class="section-label">Approving Skills</div>
+      <p style="font-size:13px;color:#393939;line-height:1.6;margin-bottom:10px">By default BOB asks permission before activating a skill. To skip the prompt:</p>
+      <ol class="steps">
+        <li><span class="step-num" style="background:#6929c4">1</span><div>Open <strong>BOB Settings</strong></div></li>
+        <li><span class="step-num" style="background:#6929c4">2</span><div>Navigate to <strong>Auto-Approve</strong></div></li>
+        <li><span class="step-num" style="background:#6929c4">3</span><div>Turn on the toggle for <strong>Skills</strong></div></li>
+      </ol>
+      <div class="callout callout-tip" style="margin-top:10px">
+        <span class="callout-icon">✅</span>
+        <span>Use the <strong>Skills tab</strong> in BOB Settings to view all loaded skills, check their locations, and verify they are picked up correctly.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Skills Structure</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 18l — SKILLS: EXAMPLES & BEST PRACTICES
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m3_12">
+  <div class="slide-header slide-header-purple">
+    <div>
+      <div class="slide-tag">Module 3 · 12 of 12</div>
+      <div class="slide-title" style="margin-top:4px">Skills — Examples &amp; Best Practices</div>
+    </div>
+    <div class="slide-time">⏱ 20 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Example — Security Review Skill</div>
+      <pre style="font-size:11px">---
+name: security-review
+description: Review code for security
+  vulnerabilities and best practices
+---
+Perform a security-focused review:
+1. Check for common vulnerabilities:
+   - SQL injection risks
+   - XSS vulnerabilities
+   - Auth/authorization issues
+   - Sensitive data exposure
+2. Review best practices:
+   - Input validation
+   - Output encoding
+   - Secure configuration
+3. Provide findings with:
+   - Severity (Critical/High/Med/Low)
+   - Location in code
+   - Recommended fix</pre>
+    </div>
+    <div>
+      <div class="section-label">Best Practices</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Practice</th><th>Guidance</th></tr>
+        <tr><td>Clear descriptions</td><td>Write descriptions that indicate <em>when</em> to use the skill — BOB relies on these</td></tr>
+        <tr><td>Focused instructions</td><td>Keep SKILL.md concise — move detailed content to supporting files</td></tr>
+        <tr><td>Actionable steps</td><td>Structure as clear, numbered steps BOB can follow systematically</td></tr>
+        <tr><td>Single responsibility</td><td>One skill per task — avoid combining unrelated workflows</td></tr>
+        <tr><td>Version control</td><td>Commit project skills to the repo for team-wide consistency</td></tr>
+        <tr><td>Test thoroughly</td><td>Verify skills work as expected before sharing with your team</td></tr>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <span><strong>Good description:</strong> "Review code for bugs, security issues, and best practices"<br><strong>Avoid:</strong> "Code review skill" — too vague for BOB to determine relevance.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 3 — Skills Examples</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODULE 2 — SECTION DIVIDER: BOB SUBSCRIPTIONS
+════════════════════════════════════════════════════ -->
+<div class="slide slide-section-divider" id="s_mod2"
+     style="background: linear-gradient(135deg, #0043ce 0%, #007d79 100%);">
+  <div class="divider-number">02</div>
+  <div class="divider-title">IBM BOB Subscriptions</div>
+  <div class="divider-sub">Free Trial · Pro · Pro Plus · Ultra · Premium Packages for Java, IBM i &amp; Z</div>
+  <div class="divider-time">⏱ 10 minutes</div>
+</div>
+
+<!-- MODULE 2 SLIDE 1 — WHAT ARE BOBCOINS & PLANS OVERVIEW -->
+<div class="slide slide-topic" id="s_mod2a">
+  <div class="slide-header" style="background:#0043ce">
+    <div>
+      <div class="slide-tag">Module 2 · 1 of 3</div>
+      <div class="slide-title" style="margin-top:4px">What are Bobcoins &amp; Plans Overview</div>
+    </div>
+    <div class="slide-time">⏱ 10 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">What are Bobcoins?</div>
+      <div class="card card-blue" style="margin-bottom:14px">
+        <div class="card-title">🪙 Bobcoins — The AI Usage Currency</div>
+        <p>Bobcoins are <strong>resource units</strong> that measure your consumption of BOB's AI capabilities. Every action — generating code, analyzing files, running commands — consumes Bobcoins based on the computational resources required.</p>
+      </div>
+      <div class="callout callout-info" style="margin-bottom:12px">
+        <span class="callout-icon">ℹ️</span>
+        <span>The <strong>Free Trial</strong> includes <strong>50 Bobcoins</strong> valid for <strong>30 days</strong>. After the trial, upgrade to Pro, Pro+, or Ultra to continue.</span>
+      </div>
+      <div class="section-label">Plan Tiers</div>
+      <table>
+        <tr><th>Plan</th><th>Best For</th></tr>
+        <tr><td>🆓 Free Trial</td><td>Getting started — 50 Bobcoins, 30 days</td></tr>
+        <tr><td>⚡ Pro</td><td>Individual developers — standard Bobcoin bundle</td></tr>
+        <tr><td>🚀 Pro Plus</td><td>Power users — more Bobcoins per month</td></tr>
+        <tr><td>💎 Ultra</td><td>Heavy usage — maximum Bobcoin allocation</td></tr>
+        <tr><td>🏢 Enterprise</td><td>Teams — custom pricing, premium packages available</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="section-label">Pricing Reference (USD)</div>
+      <table style="margin-bottom:14px">
+        <tr><th>Item</th><th>Price</th></tr>
+        <tr><td>Free Trial</td><td>$0 — 50 Bobcoins for 30 days</td></tr>
+        <tr><td>Bobcoin (overage)</td><td>$0.50 per Bobcoin</td></tr>
+        <tr><td>Pro Plus overage</td><td>$0.55 per Bobcoin</td></tr>
+        <tr><td>Premium: Java Modernization</td><td>Add-on per authorized user/month</td></tr>
+        <tr><td>Premium: IBM i</td><td>Add-on per authorized user/month</td></tr>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <span><strong>First month free</strong> on IBM BOB Premium Packages for Java Modernization and IBM i — for new subscribers only.</span>
+      </div>
+      <div class="callout callout-info" style="margin-top:10px">
+        <span class="callout-icon">ℹ️</span>
+        <span>Subscriptions auto-renew. Monthly plans can be cancelled up to 72 hours before renewal. Annual plans save ~20%.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 2 — Bobcoins &amp; Plans</span></div>
+</div>
+
+<!-- MODULE 2 SLIDE 2 — PREMIUM PACKAGES -->
+<div class="slide slide-topic" id="s_mod2b">
+  <div class="slide-header" style="background:#0043ce">
+    <div>
+      <div class="slide-tag">Module 2 · 2 of 3</div>
+      <div class="slide-title" style="margin-top:4px">Premium Packages — Java, IBM i &amp; Z</div>
+    </div>
+    <div class="slide-time">⏱ 10 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">IBM BOB Premium Package for Java Modernization</div>
+      <div class="card" style="border-left:4px solid #0043ce;background:#edf5ff;margin-bottom:14px">
+        <div class="card-title">☕ Java Modernization</div>
+        <p style="margin-bottom:10px">Specialist workflows for modernizing Java applications — purpose-built for enterprise Java upgrades.</p>
+        <ul style="padding-left:16px;font-size:13px;line-height:1.9">
+          <li>Upgrade from Java version 8 to 25</li>
+          <li>Migrate multi-framework UIs</li>
+          <li>Analyze architecture and dependencies</li>
+          <li>Fix common migration issues automatically</li>
+          <li>Generate clear Mermaid architecture diagrams</li>
+          <li>Automated CVE (security vulnerability) detection</li>
+        </ul>
+      </div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">🆓</span>
+        <span><strong>First month free</strong> for new subscribers. Billed per authorized user/month thereafter.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">IBM BOB Premium Package for IBM i</div>
+      <div class="card" style="border-left:4px solid #007d79;background:#d9fbfb;margin-bottom:14px">
+        <div class="card-title">🖥️ IBM i (AS/400) Modernization</div>
+        <p style="margin-bottom:10px">Specialist skills, modes, and workflows purpose-built for IBM i (AS/400 / RPG) environments.</p>
+        <ul style="padding-left:16px;font-size:13px;line-height:1.9">
+          <li>Connect, read, write, and compile on your IBM i server</li>
+          <li>Refactor, document, generate code, and write unit tests</li>
+          <li>Analyze and optimize Db2 SQL / DDS</li>
+          <li>Guided agentic workflows for complex modernization tasks</li>
+          <li>Built-in IBM i knowledge base and documentation access</li>
+        </ul>
+      </div>
+      <div class="section-label">IBM Z Modernization</div>
+      <div class="card" style="border-left:4px solid #6929c4;background:#f6f2ff">
+        <div class="card-title">🏗️ IBM Z (Mainframe)</div>
+        <p>Enterprise-focused capabilities for mainframe modernization — COBOL analysis, migration planning, and documentation generation for IBM Z environments.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 2 — Premium Packages</span></div>
+</div>
+
+<!-- MODULE 2 SLIDE 3 — HOW TO SUBSCRIBE -->
+<div class="slide slide-topic" id="s_mod2c">
+  <div class="slide-header" style="background:#0043ce">
+    <div>
+      <div class="slide-tag">Module 2 · 3 of 3</div>
+      <div class="slide-title" style="margin-top:4px">How to Subscribe &amp; Manage Bobcoins</div>
+    </div>
+    <div class="slide-time">⏱ 10 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">How to Start</div>
+      <ol class="steps">
+        <li><span class="step-num" style="background:#0043ce">1</span><div>Go to <a href="https://bob.ibm.com/trial" target="_blank" style="color:#0f62fe;font-weight:600">bob.ibm.com/trial</a> — sign up for the <strong>Free Trial</strong> (50 Bobcoins, 30 days, no credit card)</div></li>
+        <li><span class="step-num" style="background:#0043ce">2</span><div>After trial, visit <a href="https://bob.ibm.com/pricing" target="_blank" style="color:#0f62fe;font-weight:600">bob.ibm.com/pricing</a> to choose <strong>Pro, Pro+, or Ultra</strong></div></li>
+        <li><span class="step-num" style="background:#0043ce">3</span><div>For enterprise needs, add the <strong>Java Modernization</strong> or <strong>IBM i</strong> Premium Package as an add-on</div></li>
+        <li><span class="step-num" style="background:#0043ce">4</span><div>For team/org licensing, contact IBM for <strong>Enterprise pricing</strong></div></li>
+      </ol>
+      <div class="callout callout-info" style="margin-top:14px">
+        <span class="callout-icon">ℹ️</span>
+        <span>Annual subscriptions save approximately <strong>20%</strong> compared to monthly billing. You are charged upfront for annual plans.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Bobcoin Tracking — Bobalytics</div>
+      <div class="card card-blue" style="margin-bottom:12px">
+        <div class="card-title">📊 Monitor Usage with Bobalytics</div>
+        <p>Track Bobcoin consumption, team adoption, and productivity metrics in real time using the <strong>Bobalytics</strong> dashboard (Enterprise plan).</p>
+      </div>
+      <div class="section-label">Plan Comparison Summary</div>
+      <table>
+        <tr><th>Plan</th><th>Bobcoins</th><th>Premium Add-ons</th></tr>
+        <tr><td>Free Trial</td><td>50 (30 days)</td><td>❌ Not available</td></tr>
+        <tr><td>Pro</td><td>Monthly bundle</td><td>✅ Available</td></tr>
+        <tr><td>Pro Plus</td><td>More per month</td><td>✅ Available</td></tr>
+        <tr><td>Ultra</td><td>Maximum</td><td>✅ Available</td></tr>
+        <tr><td>Enterprise</td><td>Custom</td><td>✅ Java, IBM i, Z</td></tr>
+      </table>
+      <div class="callout callout-tip" style="margin-top:12px">
+        <span class="callout-icon">✅</span>
+        <span>For Capgemini projects using IBM i (RPG) or Java modernization, request the <strong>Premium Package add-on</strong> — first month is free for new subscribers.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 2 — How to Subscribe</span></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 25 — SECTION DIVIDER: MCP
+════════════════════════════════════════════════════ -->
+<div class="slide slide-section-divider" id="s_m4_div"
+     style="background: linear-gradient(135deg, #007d79 0%, #0f62fe 100%);">
+  <div class="divider-number">04</div>
+  <div class="divider-title">Setup MCP Server</div>
+  <div class="divider-sub">Connect BOB to GitHub using the Model Context Protocol — 6 steps</div>
+  <div class="divider-time">⏱ 10 minutes</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 26a — MCP STEPS 1–3
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m4_1">
+  <div class="slide-header slide-header-teal">
+    <div>
+      <div class="slide-tag">Module 4 · 1 of 2</div>
+      <div class="slide-title" style="margin-top:4px">Setup GitHub MCP Server — Steps 1–3</div>
+    </div>
+    <div class="slide-time">⏱ 10 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Step 1 — Create a GitHub Personal Access Token</div>
+      <ol class="steps">
+        <li><span class="step-num" style="background:#007d79">1</span><div>Go to <a href="https://github.com/settings/tokens" target="_blank" style="color:#0f62fe">github.com/settings/tokens</a></div></li>
+        <li><span class="step-num" style="background:#007d79">2</span><div>Click <strong>"Generate new token (classic)"</strong></div></li>
+        <li><span class="step-num" style="background:#007d79">3</span><div>Give it a name (e.g. <code>bob-mcp</code>)</div></li>
+        <li><span class="step-num" style="background:#007d79">4</span><div>Select scopes:<br>
+          <span class="pill pill-blue"><code>repo</code> — full repository access</span><br>
+          <span class="pill pill-teal"><code>read:org</code> — org info (optional)</span><br>
+          <span class="pill pill-teal"><code>read:user</code> — user info (optional)</span>
+        </div></li>
+        <li><span class="step-num" style="background:#007d79">5</span><div>Click <strong>"Generate token"</strong> and copy it — <strong>you won't see it again</strong></div></li>
+      </ol>
+    </div>
+    <div>
+      <div class="section-label">Step 2 — Confirm Node.js is Installed</div>
+      <p style="font-size:13px;color:#393939;margin-bottom:8px">Run this in your terminal:</p>
+      <pre>node --version</pre>
+      <p style="font-size:12px;color:#6f6f6f;margin-top:6px;margin-bottom:14px">If not installed, download from <a href="https://nodejs.org" target="_blank" style="color:#0f62fe">nodejs.org</a>. You need <strong>v18+</strong>.</p>
+
+      <div class="section-label">Step 3 — Locate or Create the MCP Config File</div>
+      <table style="margin-bottom:10px">
+        <tr><th>Scope</th><th>Path</th></tr>
+        <tr><td>Global (all workspaces)</td><td><code>C:\Users\&lt;YourName&gt;\.bob\settings\mcp.json</code></td></tr>
+        <tr><td>Workspace only</td><td><code>.bob\mcp.json</code> inside your project folder</td></tr>
+      </table>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>If the file doesn't exist, create it — it's just a plain JSON file.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 4 — MCP Steps 1–3</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 26b — MCP STEPS 4–6
+════════════════════════════════════════════════════ -->
+<div class="slide slide-topic" id="s_m4_2">
+  <div class="slide-header slide-header-teal">
+    <div>
+      <div class="slide-tag">Module 4 · 2 of 2</div>
+      <div class="slide-title" style="margin-top:4px">Setup GitHub MCP Server — Steps 4–6</div>
+    </div>
+    <div class="slide-time">⏱ 10 min</div>
+  </div>
+  <div class="slide-body two-col">
+    <div>
+      <div class="section-label">Step 4 — Add the GitHub Server Entry</div>
+      <p style="font-size:12px;color:#393939;margin-bottom:6px">If the file is <strong>empty / new</strong>:</p>
+      <pre style="font-size:11px;margin-bottom:10px">{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y",
+        "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN":
+          "YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}</pre>
+      <p style="font-size:12px;color:#393939;margin-bottom:6px">If the file <strong>already has other servers</strong>, add the <code>github</code> block alongside them:</p>
+      <pre style="font-size:11px">{
+  "mcpServers": {
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y",
+        "@modelcontextprotocol/server-sqlite",
+        "path/to/db"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y",
+        "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN":
+          "YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}</pre>
+      <div class="callout callout-warn" style="margin-top:8px">
+        <span class="callout-icon">⚠️</span>
+        <span>Replace <code>YOUR_TOKEN_HERE</code> with the token from Step 1.</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Step 5 — Reload BOB</div>
+      <ol class="steps" style="margin-bottom:16px">
+        <li><span class="step-num" style="background:#007d79">1</span><div>Save the file — BOB <strong>hot-reloads</strong> MCP configs automatically when a workspace folder is open</div></li>
+        <li><span class="step-num" style="background:#007d79">2</span><div>Check the <strong>MCP panel</strong> in BOB's UI to confirm <code>github</code> shows as <strong>✅ connected</strong></div></li>
+      </ol>
+
+      <div class="section-label">Step 6 — Test It</div>
+      <p style="font-size:13px;color:#393939;margin-bottom:10px">Once connected, you can ask BOB things like:</p>
+      <div class="card card-teal" style="margin-bottom:8px">
+        <p style="font-family:monospace;font-size:12px;color:#161616">"How many repositories are in my GitHub account?"</p>
+      </div>
+      <div class="card card-teal" style="margin-bottom:8px">
+        <p style="font-family:monospace;font-size:12px;color:#161616">"List my open pull requests"</p>
+      </div>
+      <div class="card card-teal">
+        <p style="font-family:monospace;font-size:12px;color:#161616">"Create an issue in repo X"</p>
+      </div>
+      <div class="callout callout-tip" style="margin-top:12px">
+        <span class="callout-icon">✅</span>
+        <span>Make sure the active mode has <code>mcp</code> in its permission groups — otherwise BOB cannot use MCP tools.</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">IBM BOB Training · Capgemini <span>Module 4 — MCP Steps 4–6</span></div>
+</div>
+     SLIDE 27 — CLOSING / THANK YOU
+════════════════════════════════════════════════════ -->
+<div class="slide slide-cover" id="s27"
+     style="background: linear-gradient(135deg, #001d6c 0%, #0f62fe 50%, #007d79 100%);">
+  <div class="cover-eyebrow">Capgemini Internal Training</div>
+  <div class="cover-title" style="font-size:clamp(32px,4vw,56px)">You're Ready to<br><span>Build with BOB</span></div>
+  <div class="cover-subtitle">12 topics covered · Start building smarter today</div>
+  <div class="cover-meta" style="margin-top:32px">
+    <div class="cover-meta-item">🤖 AI-Powered IDE</div>
+    <div class="cover-meta-item">🔌 MCP Integrations</div>
+    <div class="cover-meta-item">🔄 Legacy Modernization</div>
+    <div class="cover-meta-item">📋 Compliance Automation</div>
+  </div>
+  <div style="margin-top:48px;color:rgba(255,255,255,0.5);font-size:13px">IBM BOB Training · Capgemini · 2026</div>
+</div>
+
+
+</div><!-- end #deck -->
+
+<button id="btn-agenda" onclick="goToSlide('s2')" title="Go to Agenda">📋 Agenda</button>
+
+<div id="nav">
+  <button id="btn-prev" onclick="prevSlide()" disabled>← Prev</button>
+  <button id="btn-next" onclick="nextSlide()">Next →</button>
+</div>
+<div id="slide-counter">1 / 1</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add('active');
+  document.getElementById('slide-counter').textContent = (current + 1) + ' / ' + slides.length;
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').disabled = current === slides.length - 1;
+}
+function nextSlide() { showSlide(current + 1); }
+function prevSlide() { showSlide(current - 1); }
+function goToSlide(slideId) {
+  const target = document.getElementById(slideId);
+  if (!target) return;
+  const idx = Array.from(slides).indexOf(target);
+  if (idx !== -1) showSlide(idx);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+  if (e.key === 'ArrowLeft') prevSlide();
+});
+</script>
+</body>
+</html>
